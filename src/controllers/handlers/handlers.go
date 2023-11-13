@@ -135,7 +135,7 @@ func ReceberRequisicaoCriarLoja(c echo.Context) error {
 
 	log.Println("(Handlers)Loja add número: ", loja)
 	return c.JSON(http.StatusCreated, novaLoja)
-
+	
 }
 
 func RecebeberRequisicaoListarLojas(c echo.Context) error {
@@ -145,48 +145,48 @@ func RecebeberRequisicaoListarLojas(c echo.Context) error {
 }
 
 func RecebeberRequisicaoDeletarLoja(c echo.Context) error {
-	lojaID := c.Param("id")
-	id, err := strconv.Atoi(lojaID)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "ID inválido")
-	}
+    lojaID := c.Param("id")
+    id, err := strconv.Atoi(lojaID)
+    if err != nil {
+        return echo.NewHTTPError(http.StatusBadRequest, "ID inválido")
+    }
 
-	err = services.DeletarLojaPorID(id)
-	if err != nil {
-		log.Printf("(Handlers)Erro ao deletar loja pelo ID %s: %s\n", lojaID, err.Error())
-		return echo.NewHTTPError(http.StatusInternalServerError, "Erro ao deletar loja")
-	}
+    err = services.DeletarLojaPorID(id)
+    if err != nil {
+        log.Printf("(Handlers)Erro ao deletar loja pelo ID %s: %s\n", lojaID, err.Error())
+        return echo.NewHTTPError(http.StatusInternalServerError, "Erro ao deletar loja")
+    }
 
-	return c.JSON(http.StatusOK, "Loja excluída com sucesso")
+    return c.JSON(http.StatusOK, "Loja excluída com sucesso")
 }
 
 func ReceberRequisicaoAtualizarLoja(c echo.Context) error {
-	lojaID := c.Param("id")
-	id, err := strconv.Atoi(lojaID)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "ID inválido")
-	}
+    lojaID := c.Param("id")
+    id, err := strconv.Atoi(lojaID)
+    if err != nil {
+        return echo.NewHTTPError(http.StatusBadRequest, "ID inválido")
+    }
 
-	body, err := io.ReadAll(c.Request().Body)
-	if err != nil {
-		log.Println("(Handlers)Erro ao ler o corpo da solicitação:", err)
-		return c.String(http.StatusBadRequest, "Erro ao ler o corpo da solicitação")
-	}
+    body, err := io.ReadAll(c.Request().Body)
+    if err != nil {
+        log.Println("(Handlers)Erro ao ler o corpo da solicitação:", err)
+        return c.String(http.StatusBadRequest, "Erro ao ler o corpo da solicitação")
+    }
 
-	var loja models.Loja
-	if err := json.Unmarshal(body, &loja); err != nil {
-		log.Println("(Handlers)Erro ao decodificar o corpo da solicitação:", err)
-		return c.String(http.StatusBadRequest, "Erro ao decodificar o corpo da solicitação")
-	}
-	loja.Id = id
+    var loja models.Loja
+    if err := json.Unmarshal(body, &loja); err != nil {
+        log.Println("(Handlers)Erro ao decodificar o corpo da solicitação:", err)
+        return c.String(http.StatusBadRequest, "Erro ao decodificar o corpo da solicitação")
+    }
+    loja.Id = id
 
-	err = services.AtualizarLojaPorID(loja)
-	if err != nil {
-		log.Printf("(Handlers)Erro ao atualizar loja pelo ID %s: %s\n", lojaID, err.Error())
-		return echo.NewHTTPError(http.StatusInternalServerError, "Erro ao atualizar loja")
-	}
+    err = services.AtualizarLojaPorID(loja)
+    if err != nil {
+        log.Printf("(Handlers)Erro ao atualizar loja pelo ID %s: %s\n", lojaID, err.Error())
+        return echo.NewHTTPError(http.StatusInternalServerError, "Erro ao atualizar loja")
+    }
 
-	return c.JSON(http.StatusOK, "Loja atualizada com sucesso")
+    return c.JSON(http.StatusOK, "Loja atualizada com sucesso")
 }
 
 func ReceberRequisicaoListarLojasDoEstabelecimento(c echo.Context) error {

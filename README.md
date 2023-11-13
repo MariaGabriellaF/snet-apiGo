@@ -41,7 +41,8 @@ Requisições para a API devem seguir os padrões:
 | `401` | Dados de acesso inválidos.|
 | `404` | Registro pesquisado não encontrado (Not found).|
 | `405` | Método não implementado.|
-| `422` | Dados informados estão fora do escopo definido para o campo.| ****
+| `422` | Dados informados estão fora do escopo definido para o campo.|
+| `500` | Internal Server Error.| ****
 
 # Recursos da API
 
