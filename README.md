@@ -22,6 +22,11 @@ O Echo é um framework da linguagem Golang que facilita a criação de APIs, pro
 
 Estas informações detalham a utilização do framework Echo juntamente com a linguagem Golang na construção da API NovoTeste.
 
+# Banco de dados: postgres
+
+O Banco de dados usado é o postgres, que foi utilizado como uma imagem no docker. 
+
+
 ## Métodos
 Requisições para a API devem seguir os padrões:
 | Método | Descrição |
