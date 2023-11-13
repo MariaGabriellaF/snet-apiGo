@@ -1,0 +1,8 @@
+[api]
+port = "8080"
+
+[database]
+host = "localhost"
+user = "usuario"
+pass = "2601"
+name = "snet"

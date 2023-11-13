@@ -1,0 +1,29 @@
+version: '3'
+
+services:
+  snet:
+    image: postgres:15.4
+    ports:
+      - "8080:8080"
+    environment:
+      - DATABASE_HOST=localhost
+      - DATABASE_USER=usuario
+      - DATABASE_PASSWORD=2601
+      - DATABASE_NAME=snet
+    depends_on:
+      - postgres-db
+
+  postgres-db:
+    image: postgres:15.4
+    container_name: snet
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=1234
+      - POSTGRES_DB=snet
+      - POSTGRES_USER=postgres
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+volumes:
+  postgres-data:
