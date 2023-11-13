@@ -8,6 +8,8 @@ import (
 
 func Rotas(e *echo.Echo) {
 
+	e.GET("/health", handlers.HealthCheck)
+
 	//estabelecimento
 	e.POST("/estabelecimento", handlers.ReceberRequisicaoCriarEstabelecimento)
 	e.GET("/estabelecimentos", handlers.RecebeberRequisicaoListarEstabelecimentos)
@@ -17,7 +19,7 @@ func Rotas(e *echo.Echo) {
 	e.GET("/estabelecimentos/lojas/:id", handlers.ReceberRequisicaoListarLojasDoEstabelecimento)
 
 	//loja
-	
+
 	e.POST("/lojas", handlers.ReceberRequisicaoCriarLoja)
 	e.GET("/lojas", handlers.RecebeberRequisicaoListarLojas)
 	e.DELETE("/lojas/:id", handlers.RecebeberRequisicaoDeletarLoja)
