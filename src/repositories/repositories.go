@@ -17,6 +17,7 @@ func NewRepositories(db *sql.DB) *repositoriesDB {
 
 var (
 	ErrAoApagarEstabelecimento = errors.New("O estabelecimento não pode ser apagado, pois existe lojas assosciadas.")
+	ErrVerificarLojasAssociadas = errors.New("Erro ao verificar lojas.")
 )
 
 // Estabelecimento
@@ -81,13 +82,27 @@ func (r repositoriesDB) ListarEstabelecimentoPorID(id int) (models.Estabelecimen
 	return estabelecimento, nil
 }
 
-func (r repositoriesDB) DeletarEstabelecimentoPorID(id int) error {
-	_, err := r.db.Exec("DELETE FROM estabelecimento WHERE id = $1", id)
 
+func (r repositoriesDB) DeletarEstabelecimentoPorID(id int) error {
+	// Verificar se existem lojas associadas ao estabelecimento
+	var count int
+	err := r.db.QueryRow("SELECT COUNT(*) FROM lojas WHERE estabelecimento_id = $1", id).Scan(&count)
+	if err != nil {
+		log.Printf("Erro ao verificar lojas associadas ao estabelecimento com ID %d: %s\n", id, err)
+		return ErrVerificarLojasAssociadas
+	}
+
+	if count > 0 {
+		return ErrAoApagarEstabelecimento
+	}
+
+	// Se não houver lojas associadas, proceder com a exclusão do estabelecimento
+	_, err = r.db.Exec("DELETE FROM estabelecimento WHERE id = $1", id)
 	if err != nil {
 		log.Printf("Erro ao excluir o estabelecimento com ID %d: %s\n", id, err)
 		return ErrAoApagarEstabelecimento
 	}
+
 	log.Printf("Exclusão do estabelecimento com ID %d concluída com sucesso\n", id)
 	return nil
 }
