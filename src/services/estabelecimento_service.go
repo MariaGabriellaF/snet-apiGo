@@ -106,13 +106,13 @@ func DeletarEstabelecimentoPorID(id int) error {
 	defer db.Close()
 
 	repositorio := repositories.NewRepositories(db)
-
+	log.Println("erro ao pegar o repositorio")
 	err = repositorio.DeletarEstabelecimentoPorID(id)
 	if err != nil {
 		log.Printf("Erro ao excluir o estabelecimento com ID %d: %s\n", id, err)
 		return err
 	}
-
+	
 	log.Printf("Exclusão do estabelecimento com ID %d concluída com sucesso\n", id)
 
 	return nil

@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"database/sql"
+	"errors"
 	"log"
 	"snet-apiGo/src/models"
 )
@@ -14,7 +15,12 @@ func NewRepositories(db *sql.DB) *repositoriesDB {
 	return &repositoriesDB{db}
 }
 
-//Estabelecimento
+var (
+	ErrAoApagarEstabelecimento = errors.New("O estabelecimento não pode ser apagado, pois existe lojas assosciadas.")
+	ErrVerificarLojasAssociadas = errors.New("Erro ao verificar lojas.")
+)
+
+// Estabelecimento
 func (r repositoriesDB) NewEstabelecimento(estabelecimento models.Estabelecimento) (int, error) {
 	stmt, err := r.db.Prepare("insert into estabelecimento (nome, razao_social, endereco, estado, cidade, cep, numero_estabelecimento) " +
 		"values ($1, $2, $3, $4, $5, $6, $7 ) returning id")
@@ -30,7 +36,7 @@ func (r repositoriesDB) NewEstabelecimento(estabelecimento models.Estabeleciment
 		log.Println("Erro ao executar a consulta SQL:", err)
 		return 0, err
 	}
-	
+
 	log.Printf("Novo estabelecimento criado com sucesso. ID: %d\n", id)
 	return id, nil
 }
@@ -58,46 +64,58 @@ func (r repositoriesDB) ListarEstabelecimentos() ([]models.Estabelecimento, erro
 	return estabelecimentos, nil
 }
 
-
 func (r repositoriesDB) ListarEstabelecimentoPorID(id int) (models.Estabelecimento, error) {
-    var estabelecimento models.Estabelecimento
+	var estabelecimento models.Estabelecimento
 
-    row := r.db.QueryRow("Select * from estabelecimento where id = $1", id)
+	row := r.db.QueryRow("Select * from estabelecimento where id = $1", id)
 
-    // Pega os dados para o objeto Estabelecimento
-    err := row.Scan(&estabelecimento.Id, &estabelecimento.Nome, &estabelecimento.RazaoSocial, &estabelecimento.Endereco, &estabelecimento.Estado, &estabelecimento.Cidade, &estabelecimento.Cep, &estabelecimento.NumeroEstabelecimento)
+	// Pega os dados para o objeto Estabelecimento
+	err := row.Scan(&estabelecimento.Id, &estabelecimento.Nome, &estabelecimento.RazaoSocial, &estabelecimento.Endereco, &estabelecimento.Estado, &estabelecimento.Cidade, &estabelecimento.Cep, &estabelecimento.NumeroEstabelecimento)
 
-    if err != nil {
-        log.Printf("Erro ao consultar o estabelecimento com ID %d: %s\n", id, err)
-        return models.Estabelecimento{}, err
-    }
+	if err != nil {
+		log.Printf("Erro ao consultar o estabelecimento com ID %d: %s\n", id, err)
+		return models.Estabelecimento{}, err
+	}
 
-    log.Printf("Consulta do estabelecimento com ID %d concluída. Dados do estabelecimento: %+v\n", id, estabelecimento)
+	log.Printf("Consulta do estabelecimento com ID %d concluída. Dados do estabelecimento: %+v\n", id, estabelecimento)
 
-    return estabelecimento, nil
+	return estabelecimento, nil
 }
 
 
 func (r repositoriesDB) DeletarEstabelecimentoPorID(id int) error {
-    _, err := r.db.Exec("DELETE FROM estabelecimento WHERE id = $1", id)
+	// Verificar se existem lojas associadas ao estabelecimento
+	var count int
+	err := r.db.QueryRow("SELECT COUNT(*) FROM lojas WHERE estabelecimento_id = $1", id).Scan(&count)
+	if err != nil {
+		log.Printf("Erro ao verificar lojas associadas ao estabelecimento com ID %d: %s\n", id, err)
+		return ErrVerificarLojasAssociadas
+	}
 
-    if err != nil {
+	if count > 0 {
+		return ErrAoApagarEstabelecimento
+	}
+
+	// Se não houver lojas associadas, proceder com a exclusão do estabelecimento
+	_, err = r.db.Exec("DELETE FROM estabelecimento WHERE id = $1", id)
+	if err != nil {
 		log.Printf("Erro ao excluir o estabelecimento com ID %d: %s\n", id, err)
-        return err
-    }
+		return ErrAoApagarEstabelecimento
+	}
+
 	log.Printf("Exclusão do estabelecimento com ID %d concluída com sucesso\n", id)
-    return nil
+	return nil
 }
 
-func (r repositoriesDB) AtualizarEstabelecimento(estabelecimento models.Estabelecimento) (error) {
-    _, err := r.db.Exec("UPDATE estabelecimento SET nome = $1, razao_social = $2, endereco = $3, estado = $4, cidade = $5, cep = $6, numero_estabelecimento = $7 WHERE id = $8",
-        estabelecimento.Nome, estabelecimento.RazaoSocial, estabelecimento.Endereco, estabelecimento.Estado, estabelecimento.Cidade, estabelecimento.Cep, estabelecimento.NumeroEstabelecimento, estabelecimento.Id)
+func (r repositoriesDB) AtualizarEstabelecimento(estabelecimento models.Estabelecimento) error {
+	_, err := r.db.Exec("UPDATE estabelecimento SET nome = $1, razao_social = $2, endereco = $3, estado = $4, cidade = $5, cep = $6, numero_estabelecimento = $7 WHERE id = $8",
+		estabelecimento.Nome, estabelecimento.RazaoSocial, estabelecimento.Endereco, estabelecimento.Estado, estabelecimento.Cidade, estabelecimento.Cep, estabelecimento.NumeroEstabelecimento, estabelecimento.Id)
 
-    if err != nil {
-        return err
-    }
+	if err != nil {
+		return err
+	}
 
-    return nil
+	return nil
 }
 
 //Loja
@@ -116,12 +134,11 @@ func (r repositoriesDB) NewLoja(loja models.Loja) (int, error) {
 		log.Println("Erro ao executar a consulta SQL:", err)
 		return 0, err
 	}
-	
+
 	log.Printf("Nova loja criada com sucesso. ID: %d\n", id)
 
 	return id, nil
 }
-
 
 func (r repositoriesDB) ListarLojas() ([]models.Loja, error) {
 	rows, err := r.db.Query("select * from loja")
@@ -148,30 +165,28 @@ func (r repositoriesDB) ListarLojas() ([]models.Loja, error) {
 	return lojas, nil
 }
 
-
 func (r repositoriesDB) DeletarLojaPorID(id int) error {
-    _, err := r.db.Exec("delete from loja where id = $1", id)
+	_, err := r.db.Exec("delete from loja where id = $1", id)
 
-    if err != nil {
-        log.Printf("Erro ao excluir a loja com ID %d: %s\n", id, err)
-        return err
-    }
+	if err != nil {
+		log.Printf("Erro ao excluir a loja com ID %d: %s\n", id, err)
+		return err
+	}
 
-    log.Printf("Exclusão da loja com ID %d concluída com sucesso\n", id)
+	log.Printf("Exclusão da loja com ID %d concluída com sucesso\n", id)
 
-    return nil
+	return nil
 }
 
-
 func (r repositoriesDB) AtualizarLoja(loja models.Loja) error {
-    _, err := r.db.Exec("update loja set nome = $1, razao_social = $2, endereco = $3, estado = $4, cidade = $5, cep = $6 WHERE id = $7",
-        loja.Nome, loja.RazaoSocial, loja.Endereco, loja.Estado, loja.Cidade, loja.Cep, loja.Id)
+	_, err := r.db.Exec("update loja set nome = $1, razao_social = $2, endereco = $3, estado = $4, cidade = $5, cep = $6 WHERE id = $7",
+		loja.Nome, loja.RazaoSocial, loja.Endereco, loja.Estado, loja.Cidade, loja.Cep, loja.Id)
 
-    if err != nil {
-        return err
-    }
+	if err != nil {
+		return err
+	}
 
-    return nil
+	return nil
 }
 
 func (r repositoriesDB) GetEstabelecimentoComLojas(id int) (models.Estabelecimento, error) {
@@ -194,7 +209,7 @@ func (r repositoriesDB) GetEstabelecimentoComLojas(id int) (models.Estabelecimen
 
 	var estabelecimento models.Estabelecimento
 	lojas := make(map[int]models.Loja)
-	
+
 	for rows.Next() {
 		var idEst, idLoja int
 		var nomeEst, nomeLoja, razaoSocialEst, razaoSocialLoja, enderecoEst, enderecoLoja, estadoEst, estadoLoja, cidadeEst, cidadeLoja, cepEst, cepLoja string

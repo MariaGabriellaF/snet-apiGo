@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"errors"
 	"io"
 	"log"
 	"net/http"
@@ -11,6 +12,11 @@ import (
 	"strconv"
 
 	"github.com/labstack/echo"
+)
+
+var (
+	ErrAoApagarEstabelecimento  = errors.New("O estabelecimento não pode ser apagado, pois existe lojas assosciadas.")
+	ErrVerificarLojasAssociadas = errors.New("Erro ao verificar lojas.")
 )
 
 // Estabelecimento
@@ -75,8 +81,15 @@ func RecebeberRequisicaoDeletarEstabelecimento(c echo.Context) error {
 
 	err = services.DeletarEstabelecimentoPorID(id)
 	if err != nil {
-		log.Printf("(Handlers)Erro ao deletar estabelecimento pelo ID %s: %s\n", estabelecimentoID, err.Error())
-		return err
+		switch err {
+		case ErrVerificarLojasAssociadas:
+			return echo.NewHTTPError(http.StatusConflict, "O estabelecimento não pode ser apagado, pois existem lojas associadas")
+		case ErrAoApagarEstabelecimento:
+			return echo.NewHTTPError(http.StatusInternalServerError, "Erro ao apagar o estabelecimento")
+		default:
+			log.Printf("(Handlers)Erro ao deletar estabelecimento pelo ID %s: %s\n", estabelecimentoID, err.Error())
+			return echo.NewHTTPError(http.StatusInternalServerError, "O estabelecimento não pode ser apagado, pois existem lojas associadas")
+		}
 	}
 
 	return c.JSON(http.StatusOK, "Estabelecimento excluído com sucesso")
