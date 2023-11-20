@@ -244,13 +244,14 @@ Não é possível atualizar o ID e nem o número do estabelecimento
 
     + Body
 
-           {
-            	"nomeLoja": "",
-            	"razaoSocialLoja": "",
-            	"enderecoLoja": "",
-            	"estadoLoja": "",
-            	"cidadeLoja": "",
-            	"cepLoja": "",
+            {
+              "idEstabelecimento": 5,
+              "nomeLoja": "Baterialoja",
+              "razaoSocialLoja": "ServiceNet Ltda",
+              "enderecoLoja": "Rua Adelson225",
+              "estadoLoja": "SP",
+              "cidadeLoja": "Rio azul",
+              "cepLoja": "2222-22"
             }
 
   
@@ -279,28 +280,28 @@ Não é possível atualizar o ID e nem o número do estabelecimento
     
     + Body
 
-                  [
-        	{
-        		"idLoja": 28,
-        		"nomeLoja": "Loja do estabelecimento1",
-        		"razaoSocialLoja": "Loja",
-        		"enderecoLoja": "rua da loja",
-        		"estadoLoja": "etado da loja",
-        		"cidadeLoja": "cidade da loja",
-        		"cepLoja": "000000",
-        		"numeroEstabelecimentoLoja": 865
-        	},
-        	{
-        		"idLoja": 343,
-        		"nomeLoja": "Outra loja do estabelecimento1",
-        		"razaoSocialLoja": "loja1",
-        		"enderecoLoja": "rua da loja1",
-        		"estadoLoja": "rua da loja1",
-        		"cidadeLoja": "rua da loja1",
-        		"cepLoja": "211111",
-        		"numeroEstabelecimentoLoja": 865
-        	}
-        ]
+          [
+            {
+              "idLoja": 4,
+              "idEstabelecimento": 5,
+              "nomeLoja": "Rio tinto melhor ",
+              "razaoSocialLoja": "ServiceNet Ltda",
+              "enderecoLoja": "Rua Adelson225",
+              "estadoLoja": "SP",
+              "cidadeLoja": "Rio azul",
+              "cepLoja": "2222-22"
+            },
+            {
+              "idLoja": 6,
+              "idEstabelecimento": 5,
+              "nomeLoja": "Rio tinto melhor ",
+              "razaoSocialLoja": "ServiceNet Ltda",
+              "enderecoLoja": "Rua Adelson225",
+              "estadoLoja": "SP",
+              "cidadeLoja": "Rio azul",
+              "cepLoja": "2222-22"
+            }
+                  ]
 
 
 ## Deletar uma loja pelo seu ID (ReceberRequisicaoDeletarLoja) [DELETE/lojas/id]
