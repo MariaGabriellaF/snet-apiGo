@@ -86,7 +86,7 @@ func (r repositoriesDB) ListarEstabelecimentoPorID(id int) (models.Estabelecimen
 func (r repositoriesDB) DeletarEstabelecimentoPorID(id int) error {
 	// Verificar se existem lojas associadas ao estabelecimento
 	var count int
-	err := r.db.QueryRow("SELECT COUNT(*) FROM lojas WHERE estabelecimento_id = $1", id).Scan(&count)
+	err := r.db.QueryRow("SELECT COUNT(*) FROM loja WHERE id_estabelecimento = $1", id).Scan(&count)
 	if err != nil {
 		log.Printf("Erro ao verificar lojas associadas ao estabelecimento com ID %d: %s\n", id, err)
 		return ErrVerificarLojasAssociadas
