@@ -1,29 +1,39 @@
 version: '3'
 
+  #networks:
+  #snet-api-network:
+    #driver: bridge
+
 services:
-  snet:
+  snet-api-go:
+    container_name: snet-api-go
     build:
       context: .
       dockerfile: Dockerfile
+    #networks:
+     # - snet-api-network
     ports:
       - "8080:8080"
     environment:
-      - DATABASE_HOST=localhost
-      - DATABASE_USER=usuario
-      - DATABASE_PASSWORD=2601
-      - DATABASE_NAME=snet
+      - host=postgres-db
+      - user=usuario
+      - pass=2601
+      - name=snetn
+      - port=5432
     depends_on:
       - postgres-db
-
+    
   postgres-db:
     image: postgres:15.4
-    container_name: api-snet-go-final
+    #networks:
+     # - snet-api-network
+    container_name: postgres-db
     ports:
       - "5432:5432"
     environment:
-      - POSTGRES_PASSWORD=1234
-      - POSTGRES_DB=snet
-      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=2601
+      - POSTGRES_DB=snetn
+      - POSTGRES_USER=usuario
     volumes:
       - postgres-data:/var/lib/postgresql/data
 

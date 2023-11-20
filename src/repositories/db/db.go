@@ -13,6 +13,7 @@ import (
 
 func AbrirConexao() (*sql.DB, error) {
 	conf, err := configs.Load()
+	fmt.Println(conf.Host, conf.Port, conf.Pass, conf.User)
 	if err != nil {
 		return nil, err
 	}

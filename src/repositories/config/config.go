@@ -29,7 +29,6 @@ type DBConfig struct {
 
 func init() {
 	viper.SetDefault("api.port", "8080")
-	viper.SetDefault("database.host", "localhost")
 	viper.SetDefault("database.port", "5432")
 }
 
@@ -61,7 +60,6 @@ func Load() (DBConfig, error) {
 	return cfg.DB, nil
 }
 
-
 func GetDB() (*DBConfig, error) {
 	if cfg == nil || cfg.DB == (DBConfig{}) {
 		return nil, errors.New("Configurações do banco de dados não inicializadas ou vazias")
@@ -71,7 +69,7 @@ func GetDB() (*DBConfig, error) {
 
 func GetServerPort() string {
 	if cfg == nil {
-		return "" 
+		return ""
 	}
 	return cfg.API.Port
 }
